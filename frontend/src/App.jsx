@@ -4,10 +4,14 @@ import AnalyticsDashboard from './components/AnalyticsDashboard';
 import Catalog from './components/Catalog';
 import ProductCard from './components/ProductCard';
 import SearchAndFilter from './components/SearchAndFilter';
+import BookingForm from './components/BookingForm';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("All");
+  
+  // 1. Add state to track if the booking modal should be visible
+  const [isBookingOpen, setIsBookingOpen] = useState(true); 
 
   const myProducts = [
     {
@@ -53,6 +57,16 @@ function App() {
           RenTech Component Viewer
         </h1>
 
+        {/* Temporary button to re-open the form if you accidentally close it during testing */}
+        {!isBookingOpen && (
+          <button 
+            onClick={() => setIsBookingOpen(true)}
+            className="mb-4 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:bg-blue-700 transition"
+          >
+            Open Booking Form Test
+          </button>
+        )}
+
         <section className="mb-10">
           <h2 className="text-xl font-semibold text-gray-600 mb-4 border-b pb-2">
             1. KPI Cards Component
@@ -96,6 +110,11 @@ function App() {
             )}
           </div>
         </section>
+
+        {/* 2. Conditionally render the form and pass down the onClose function */}
+        {isBookingOpen && (
+          <BookingForm onClose={() => setIsBookingOpen(false)} />
+        )}
 
       </div>
     </div>
