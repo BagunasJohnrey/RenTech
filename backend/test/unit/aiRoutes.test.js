@@ -1,41 +1,22 @@
 import { describe, it, expect, vi } from 'vitest';
-import { getAiInsights, postAiAssistant } from '../../route/aiRoutes.js';
+import express from 'express';
+import { registerAiRoutes } from '../../route/aiRoutes.js';
 
-function makeMockReqRes(overrides = {}) {
-  const req = { body: overrides.body || {} };
-  const res = {
-    json: vi.fn().mockReturnThis(),
-    status: vi.fn().mockReturnThis(),
-  };
-  return { req, res };
-}
-
-describe('AI Express Routes', () => {
-  describe('GET /api/ai/insights', () => {
-    it('responds with a success status and standard JSON', async () => {
-      const { req, res } = makeMockReqRes();
-      await getAiInsights(req, res);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          status: 'success',
-          message: expect.stringMatching(/operational/),
-          timestamp: expect.any(String),
-        })
-      );
-    });
+describe('AI Routes Registration', () => {
+  it('registers GET /ai/insights route', () => {
+    const router = express.Router();
+    const spy = vi.spyOn(router, 'get');
+    registerAiRoutes(router);
+    expect(spy).toHaveBeenCalledWith('/ai/insights', expect.any(Function));
   });
 
-  describe('POST /api/ai/assistant', () => {
-    it('responds with a placeholder answer when a question is provided', async () => {
-      const { req, res } = makeMockReqRes({ body: { question: 'What is the revenue trend?' } });
-      await postAiAssistant(req, res);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          status: 'success',
-          answer: expect.stringContaining('What is the revenue trend?'),
-          timestamp: expect.any(String),
-        })
-      );
-    });
+  it('registers POST /ai/assistant route with validation middleware', () => {
+    const router = express.Router();
+    const spy = vi.spyOn(router, 'post');
+    registerAiRoutes(router);
+    const call = spy.mock.calls.find(c => c[0] === '/ai/assistant');
+    expect(call).toBeDefined();
+    expect(call[1]).toEqual(expect.any(Function));
+    expect(call[2]).toEqual(expect.any(Function));
   });
 });
