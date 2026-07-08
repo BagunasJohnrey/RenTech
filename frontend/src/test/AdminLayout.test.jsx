@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import AdminLayout from "../components/AdminLayout";
+import AdminLayout from "../pages/AdminLayout";
 import * as LoginModule from "../components/Login";
 
 vi.mock("recharts", async () => {

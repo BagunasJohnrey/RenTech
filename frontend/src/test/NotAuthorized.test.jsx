@@ -1,10 +1,12 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import NotAuthorized from "../components/NotAuthorized";
+import ProtectedRoute from "../components/ProtectedRoute";
+import * as LoginModule from "../components/Login";
 
-describe("NotAuthorized Component", () => {
+describe("/unauthorized - NotAuthorized page", () => {
   function renderNotAuthorized(initialEntries = ["/unauthorized"]) {
     return render(
       <MemoryRouter initialEntries={initialEntries}>
@@ -13,7 +15,7 @@ describe("NotAuthorized Component", () => {
     );
   }
 
-  it("renders the heading and description text", () => {
+  it("/unauthorized - renders heading and error description", () => {
     renderNotAuthorized();
     expect(screen.getByText("Not Authorized")).toBeInTheDocument();
     expect(
@@ -21,38 +23,116 @@ describe("NotAuthorized Component", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders a button linking to the login page", () => {
+  it("/unauthorized - renders go to login button", () => {
     renderNotAuthorized();
     const button = screen.getByRole("button", { name: /go to login/i });
     expect(button).toBeInTheDocument();
   });
 
-  it("renders a lock emoji icon for visual indication", () => {
+  it("/unauthorized - renders lock emoji for visual indication", () => {
     renderNotAuthorized();
     expect(screen.getByText("🔒")).toBeInTheDocument();
   });
 
-  it("contains a contact administrator message in the description", () => {
+  it("/unauthorized - displays contact administrator message", () => {
     renderNotAuthorized();
     expect(
       screen.getByText(/contact your administrator/i)
     ).toBeInTheDocument();
   });
 
-  it("navigates to /login when the button is clicked", async () => {
+  it("/unauthorized - navigates to /login on button click", async () => {
     const user = userEvent.setup();
-    const { container } = renderNotAuthorized();
-
+    renderNotAuthorized();
     const button = screen.getByRole("button", { name: /go to login/i });
     await user.click(button);
   });
 
-  it("has a centered layout with proper background styling", () => {
+  it("/unauthorized - renders centered flex layout", () => {
     renderNotAuthorized();
     const container = document.querySelector(".min-h-screen");
     expect(container).toBeInTheDocument();
     expect(container.className).toContain("flex");
     expect(container.className).toContain("items-center");
     expect(container.className).toContain("justify-center");
+  });
+
+  it("/unauthorized?ref=/admin - renders page with query parameters without breaking", () => {
+    renderNotAuthorized(["/unauthorized?ref=/admin"]);
+    expect(screen.getByText("Not Authorized")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /go to login/i })).toBeInTheDocument();
+    expect(screen.getByText("🔒")).toBeInTheDocument();
+  });
+
+  it("/unauthorized/ - renders page with trailing slash without breaking", () => {
+    renderNotAuthorized(["/unauthorized/"]);
+    expect(screen.getByText("Not Authorized")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /go to login/i })).toBeInTheDocument();
+  });
+});
+
+describe("customer access to protected endpoints - redirects to /unauthorized", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("/admin - customer blocked from admin-only route", async () => {
+    LoginModule.saveSession("Customer", "customer");
+    render(
+      <MemoryRouter initialEntries={["/admin"]}>
+        <ProtectedRoute allowedRoles={["Admin"]}>
+          <div>Admin Panel</div>
+        </ProtectedRoute>
+      </MemoryRouter>
+    );
+    await waitFor(() => {
+      expect(screen.queryByText("Admin Panel")).not.toBeInTheDocument();
+    });
+  });
+
+  it("/reports - customer blocked from multi-role route", async () => {
+    LoginModule.saveSession("Customer", "customer");
+    render(
+      <MemoryRouter initialEntries={["/reports"]}>
+        <ProtectedRoute allowedRoles={["Admin", "Staff"]}>
+          <div>Reports Dashboard</div>
+        </ProtectedRoute>
+      </MemoryRouter>
+    );
+    await waitFor(() => {
+      expect(screen.queryByText("Reports Dashboard")).not.toBeInTheDocument();
+    });
+  });
+
+  it("/admin/analytics - staff blocked from admin-only route", async () => {
+    LoginModule.saveSession("Staff", "staff");
+    render(
+      <MemoryRouter initialEntries={["/admin/analytics"]}>
+        <ProtectedRoute allowedRoles={["Admin"]}>
+          <div>Analytics Dashboard</div>
+        </ProtectedRoute>
+      </MemoryRouter>
+    );
+    await waitFor(() => {
+      expect(screen.queryByText("Analytics Dashboard")).not.toBeInTheDocument();
+    });
+  });
+
+  it("/ - customer allowed when no role restriction", async () => {
+    LoginModule.saveSession("Customer", "customer");
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <ProtectedRoute>
+          <div>Home</div>
+        </ProtectedRoute>
+      </MemoryRouter>
+    );
+    await waitFor(() => {
+      expect(screen.getByText("Home")).toBeInTheDocument();
+    });
   });
 });

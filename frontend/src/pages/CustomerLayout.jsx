@@ -1,4 +1,4 @@
-import ChatAssistantWidget from './ChatAssistantWidget';
+import ChatAssistantWidget from '../components/ChatAssistantWidget';
 
 const sampleProducts = [
   { id: 1, name: "Ivory Lace Gown", category: "wedding", color: "ivory" },

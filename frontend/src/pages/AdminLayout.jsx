@@ -1,7 +1,7 @@
-import ProtectedRoute from './ProtectedRoute';
-import Sidebar from './Sidebar';
-import AnalyticsDashboard from './AnalyticsDashboard';
-import AIBusinessInsights from './AIBusinessInsights';
+import ProtectedRoute from '../components/ProtectedRoute';
+import Sidebar from '../components/Sidebar';
+import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import AIBusinessInsights from '../components/AIBusinessInsights';
 
 const mockInsights = [
   "Rental demand for winter coats is up 20% this week.",

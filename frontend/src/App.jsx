@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import AdminLayout from "./components/AdminLayout";
-import CustomerLayout from "./components/CustomerLayout";
+import AdminLayout from "./pages/AdminLayout";
+import CustomerLayout from "./pages/CustomerLayout";
 import NotAuthorized from "./components/NotAuthorized";
 import Login from "./components/Login";
 import { getSession, clearSession } from "./components/Login";
