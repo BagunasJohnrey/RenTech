@@ -137,7 +137,7 @@ app.use('/api', loginRoutes);
 app.use('/api', transactionRoutes);
 app.use('/api', forecastRouter);
 app.use('/api', aiRouter);
-app.use('/api', analyticsRouter);
+app.use('/api/analytics', analyticsRouter);
 
 
 const isMainModule = process.argv[1] && path.resolve(fileURLToPath(import.meta.url)) === path.resolve(process.argv[1]);
