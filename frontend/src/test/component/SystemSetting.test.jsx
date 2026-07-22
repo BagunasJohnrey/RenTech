@@ -6,6 +6,10 @@ import SystemSetting from '../../components/SystemSetting.jsx';
 
 describe('SystemSetting Component - Unit Tests', () => {
 
+  beforeEach(() => {
+    localStorage.removeItem('rentech_templates');
+  });
+
   const renderAndClearLoading = async () => {
     render(
       <MemoryRouter>
@@ -70,7 +74,7 @@ describe('SystemSetting Component - Unit Tests', () => {
 
       expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
       expect(screen.getByText('New updated booking text template alert!')).toBeInTheDocument();
-      expect(screen.getByText('Template modified successfully (Mock Save)!')).toBeInTheDocument();
+      expect(screen.getByText('Template modified successfully!')).toBeInTheDocument();
     });
 
     test('allows a user to cancel an active edit without mutating current state', async () => {
